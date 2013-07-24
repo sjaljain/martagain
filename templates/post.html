@@ -1,22 +1,68 @@
 <div class="post">
-  <div class="post-heading">
-    <div class="post-type">
-      {{p.producttype}}
-    </div>
-	<div class="post-name">
-      {{p.name}}
-    </div>	
-	<div class="post-detail">
-      {{p.detail}}
-    </div>
-	<div class="post-avatar">
-	  <img src="{{ ['img?img_id=',p.key()]|join }}"></img>
-	</div>
-	<div class="post-author">
-	  {{p.author}}
-	</div>
-    <div class="post-date">
-      {{p.created.strftime("%b %d, %Y")}}
-    </div>
-  </div>
+<table>
+<colgroup>
+       <col span="1" style="width: 70%;">
+       <col span="1" style="width: 30%;">
+</colgroup>
+    <thead>
+        <tr>
+            <th class="name" colspan="2">
+				<div class="post-name">
+			     {{p.name}}
+    		     <small>{{p.created.strftime("%b %d, %Y")}}</small>
+				</div>
+			</th>
+            <th class="details">Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td rowspan="5" colspan="2">
+				<div class="post-avatar">
+		  		<img style="height:100px; width:100px;"src="{{ ['img?img_id=',p.key()]|join }}"></img>
+				</div>
+				<div class="post-content">
+        		 {{p.detail}}
+    			</div>            
+			</td>
+            <td><div class="post-content">
+      			 {{p.producttype}}
+    			</div>	
+			</td>
+        </tr>
+        <tr>
+           
+            <td>
+			<div class="post-content">
+		 	{{p.author}}
+     		</div>			
+			</td>
+        </tr>
+		<tr>
+           
+            <td>
+			<div class="post-content">
+		 	{{p.author}}
+     		</div>			
+			</td>
+        </tr>
+		<tr>
+           
+            <td>
+			<div class="post-content">
+		 	{{p.author}}
+     		</div>			
+			</td>
+        </tr>
+		<tr>
+           
+            <td>
+			<div class="post-content">
+		 	{{p.author}}
+     		</div>			
+			</td>
+        </tr>
+		
+    </tbody>
+</table>
 </div>

@@ -76,27 +76,7 @@ class BlogHandler(webapp2.RequestHandler):
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.read_secure_cookie('user_id')
         self.user = uid
-        """cookie = facebook.get_user_from_cookie(self.request.cookies,
-                                                   FACEBOOK_APP_ID,
-                                                   FACEBOOK_APP_SECRET)
-        print cookie
-        if cookie:
-            self.user = cookie['uid']
-            u = User.by_fid(cookie['uid']) #checking if the user already exists
-            if not u:
-                graph = facebook.GraphAPI(cookie["access_token"])
-                profile = graph.get_object("me")
-                user = User(
-                        fid=str(profile["id"]),
-                        name=profile["name"],
-                        email=profile["email"],
-                        access_token=cookie["access_token"]
-                    )
-                user.put()
-                print "user added"
-                print profile["email"]     
-        else :
-            self.user = None"""
+        
 
         if self.request.url.endswith('.json'):
             self.format = 'json'
@@ -106,7 +86,7 @@ class BlogHandler(webapp2.RequestHandler):
 
 class MainPage(BlogHandler):
   def get(self):
-      self.redirect('/iitkgp/')
+      self.redirect('/')
 
 
 ##### user stuff
@@ -135,7 +115,9 @@ class User(db.Model):
 
 class Login(BlogHandler):
     def get(self):
-        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri="http://localhost:8080/iitkgp/login")
+        redirectlocal = "http://localhost:8080/login"
+        redirectwebsite = "http://martagainiitkgp.appspot.com/login" 
+        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=redirectwebsite)
 
         """redirect_url points to */login* URL of our app"""
         args["client_secret"] = FACEBOOK_APP_SECRET  #facebook APP Secret
@@ -151,12 +133,12 @@ class Login(BlogHandler):
                 p = User(fid = str(profile["id"]), name = str(profile["name"]), email = str(profile["email"]))
                 p.put()
            
-        self.redirect("/iitkgp")
+        self.redirect("/")
 
 class Logout(BlogHandler):
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
-        self.redirect('/iitkgp/')
+        self.redirect('/')
 
 ##### blog stuff
 
@@ -238,13 +220,14 @@ class SellItem(BlogHandler):
         name = self.request.get('name')
         detail = self.request.get('detail')
         author = self.request.get('author')
-        pseudoavatar = images.resize(self.request.get('img'), 32, 32)
-        avatar = db.Blob(pseudoavatar)
-		
+        """pseudoavatar = images.resize(self.request.get('img'), 32, 32)
+        avatar = db.Blob(pseudoavatar)"""
+        avatar = "abc"	
+	
         if producttype and name and detail and author:
             p = Post(parent = blog_key(), producttype = producttype, name = name, detail = detail, avatar = avatar, author = author)
             p.put()
-            self.redirect('/iitkgp/%s' % str(p.key().id()))
+            self.redirect('/%s' % str(p.key().id()))
         else:
             error = "fill in the details, please!"
             self.render("sellitem.html", productseq = productseq, producttype = producttype, name = name, detail = detail, author = author, avatar = avatar, error=error) #add author here as well
@@ -263,12 +246,12 @@ class Image(webapp2.RequestHandler):
 
 
 
-app = webapp2.WSGIApplication([('/', MainPage),
-                               ('/iitkgp/?(?:.json)?', BlogFront),
-                               ('/iitkgp/([0-9]+)(?:.json)?', PostPage),
-                               ('/iitkgp/sellitem', SellItem),
-		               ('/iitkgp/logout', Logout),
-			       ('/iitkgp/login', Login),
-                               ('/iitkgp/img', Image),
+app = webapp2.WSGIApplication([#('/', MainPage),
+                               ('/?(?:.json)?', BlogFront),
+                               ('/([0-9]+)(?:.json)?', PostPage),
+                               ('/sellitem', SellItem),
+		               ('/logout', Logout),
+			       ('/login', Login),
+                               ('/img', Image),
                                ],
                               debug=True)
