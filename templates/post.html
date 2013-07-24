@@ -1,0 +1,22 @@
+<div class="post">
+  <div class="post-heading">
+    <div class="post-type">
+      {{p.producttype}}
+    </div>
+	<div class="post-name">
+      {{p.name}}
+    </div>	
+	<div class="post-detail">
+      {{p.detail}}
+    </div>
+	<div class="post-avatar">
+	  <img src="{{ ['img?img_id=',p.key()]|join }}"></img>
+	</div>
+	<div class="post-author">
+	  {{p.author}}
+	</div>
+    <div class="post-date">
+      {{p.created.strftime("%b %d, %Y")}}
+    </div>
+  </div>
+</div>

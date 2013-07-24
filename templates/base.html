@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- 1398507617030667 -->
+<html xmlns:fb="http://www.facebook.com/2008/fbml">
+<head>
+  <link type="text/css" rel="stylesheet" href="/static/main.css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+   
+  <title>martAgain</title>
+</head>
+<body>
+<div class="main-title">
+	<a href="/iitkgp/">martAgain</a>
+</div>
+
+
+<div class="login-area">
+{% if user %}
+<a href="/iitkgp/sellitem">Sell Item</a>
+<a href="/iitkgp/wishlist">Wish List</a>
+<a href="/iitkgp/messages">Messages</a>
+<a href="/iitkgp/logout">(Logout)</a>
+{% else %}
+<a href="http://www.facebook.com/dialog/oauth?client_id=1398507617030667&redirect_uri=http://localhost:8080/iitkgp/login">Login</a>
+{% endif %}
+</div>
+
+	<div class="content">
+	<div class="static-content-about">
+	<b>About</b><br/>
+	martAgain is the social market place for KGPians where KGPians can buy and sell products and help recycle!<br/> Bon Voyage!	
+	</div>
+  {% block content %}
+  {% endblock %}
+  </div>
+</body>
+
+</html>
+

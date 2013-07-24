@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script type="text/javascript">
+    var wordLen = 255; // Maximum word length
+     function checkWordLen(obj){
+      var len = obj.value.split(/[\s]+/);
+       if(len.length > wordLen){
+           alert("You cannot put more than "+wordLen+" words in this text area.");
+           obj.oldValue = obj.value!=obj.oldValue?obj.value:obj.oldValue;
+           obj.value = obj.oldValue?obj.oldValue:"";
+           return false;
+       }
+     return true;
+   }
+</script>
+
+
+  <h2>Sell Item</h2>
+
+    <form method="post" enctype="multipart/form-data">
+      <label>
+        <div>Product Type</div>
+        <select name="producttype">
+         {% for producttype in productseq %}
+            <option  value="{{ producttype }}">{{ producttype }}</option>
+         {% endfor %}
+         </select>
+      </label>
+
+      <label>
+        <div>Product Name</div>
+        <input type = "text" name="name">{{name}}</input>
+      </label>
+
+	<label>
+        <div>Product Details</div>
+        <textarea name="detail" onchange="checkWordLen(this);">{{detail}}</textarea>
+      </label>
+
+	<label>
+	<div><label>Product Images</label></div>
+        <div><input type="file" name="img"/></div>
+	</label>
+
+	<label>
+        <div>Seller Name</div>
+        <input type ="text" name="author" value="{{author}}">
+      	</label>
+
+      <div class="error">{{error}}</div>
+
+      <input type="submit">
+    </form>
+{% endblock %}
