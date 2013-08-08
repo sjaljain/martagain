@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="../static/js/jquery.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="../static/js/bootstrap.min.js"></script>
     <title>martAgain - A Social Marketplace</title>
 
@@ -21,6 +20,38 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>martAgain</title>
     <div id="fb-root"></div>
+    <!-- Script used in post.html -->
+    <script type="text/javascript">
+    $('#interestSubmit').click(function() {
+        var postid = $('#postid').val();
+        var formData = $('#interestForm').serialize();
+        $.ajax({
+                type: "POST",
+                url: '/interested', 
+                data : formData, 
+                success: function(response) {$('#doneinterested').html(response);  
+            }});
+        return false;
+    }); 
+
+    function interestResults(data) {
+            if (data.status == "ok") {
+                $('#doneinterested').text("Interest Sent");
+            }
+            else 
+                alert ("not ok  " + data.status);
+        }
+        //function for showing comments on click
+        $(document).ready(
+            function(){
+                $(".showcomment").click(function () {
+                    var $toggled = $(this).attr('href');
+                    $($toggled).toggle();
+                    $(this).hide();
+                  });
+        });
+
+</script>
     
 
   </head>

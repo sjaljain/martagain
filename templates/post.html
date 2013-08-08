@@ -1,33 +1,4 @@
-  <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
-  <script type="text/javascript" src="/js/jquery-ui-1.8.20.custom.min.js"></script>
-  <script type="text/javascript" src="/js/jquery.fancybox.pack.js"></script>
-  <script type="text/javascript" src="/js/jquery.mousewheel-3.0.6.pack.js"></script>
-  <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
-  
-<script type="text/javascript">
-//interested Ajax request
-    $('#interestSubmit').click(function() {
-        var postid = $('#postid').val();
-        var formData = $('#interestForm').serialize();
-        $.ajax({
-                type: "POST",
-                url: '/interested', 
-                data : formData, 
-                success: function(response) {$('#doneinterested').html(response);  
-            });
-        return false;
-    }); 
-
-    function interestResults(data) {
-            if (data.status == "ok") {
-                $('#doneinterested').text("Interest Sent");
-            }
-            else 
-                alert ("not ok  " + data.status);
-        }
-
-</script>
-<div class="post">
+ <div class="post">
     <table class="post">
        <thead>
             <tr>
@@ -86,7 +57,9 @@
             </tr>
     	</tbody>
     </table>
-    <div class="fb-comments" data-href="{{ ['http://localhost:8080/#',p.key().id()]|join }}" data-width="440"></div>
+         <a class="showcomment" href="{{ ['#fbcommentbox',p.key().id()]|join }}">Comments</a>            
+        <div id="{{ ['fbcommentbox',p.key().id()]|join }}" style="display:none;" class="fb-comments" 
+             data-href="{{ ['http://localhost:8080/#',p.key().id()]|join }}" data-width="440"></div>
 </div>
 
 
