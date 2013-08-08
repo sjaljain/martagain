@@ -115,9 +115,8 @@ class User(db.Model):
 
 class Login(BlogHandler):
     def get(self):
-        redirectlocal = "http://localhost:8080/login"
-        redirectwebsite = "http://martagainiitkgp.appspot.com/login" 
-        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=redirectwebsite)
+        redirecturl = "http://localhost:8080/login"
+        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=redirecturl)
 
         """redirect_url points to */login* URL of our app"""
         args["client_secret"] = FACEBOOK_APP_SECRET  #facebook APP Secret
@@ -149,10 +148,11 @@ class Post(db.Model):
     producttype = db.StringProperty(required = True)
     name = db.TextProperty(required = True)
     detail = db.TextProperty(required = True)
-    author = db.StringProperty(required = True)
+    author = db.ReferenceProperty(User, required = True)
     avatar = db.BlobProperty(required = False)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
+
 
     def render(self):
         self._render_text = self.detail.replace('\n', '<br>')
@@ -219,9 +219,11 @@ class SellItem(BlogHandler):
         producttype = self.request.get('producttype')
         name = self.request.get('name')
         detail = self.request.get('detail')
-        author = self.request.get('author')
-        """pseudoavatar = images.resize(self.request.get('img'), 32, 32)
-        avatar = db.Blob(pseudoavatar)"""
+        print self.user
+        author = User.by_fid(self.user)
+        print author
+        pseudoavatar = self.request.get('img')
+        #avatar = db.Blob(pseudoavatar)
         avatar = "abc"	
 	
         if producttype and name and detail and author:
@@ -231,6 +233,27 @@ class SellItem(BlogHandler):
         else:
             error = "fill in the details, please!"
             self.render("sellitem.html", productseq = productseq, producttype = producttype, name = name, detail = detail, author = author, avatar = avatar, error=error) #add author here as well
+
+class Interest(db.Model):
+    user = db.ReferenceProperty(User)
+    post = db.ReferenceProperty(Post)
+    created = db.DateTimeProperty(auto_now_add = True)
+
+
+
+class Interested(BlogHandler):
+    def get(self):
+        self.redirect("/")
+
+    def post(self):
+        postkey = self.request.get("postkey")
+        post = db.get(postkey)
+        u = User.by_fid(self.user)
+        i = Interest(user = u, post = post)
+        i.put()
+        #r = json.dumps({"status" : "ok", "interest": u.email})
+        #self.response.headers["Content-Type"] = "application/json; charset=UTF-8"
+        #self.write(r) 
 
 
 class Image(webapp2.RequestHandler):
@@ -250,8 +273,9 @@ app = webapp2.WSGIApplication([#('/', MainPage),
                                ('/?(?:.json)?', BlogFront),
                                ('/([0-9]+)(?:.json)?', PostPage),
                                ('/sellitem', SellItem),
-		               ('/logout', Logout),
-			       ('/login', Login),
+		                       ('/logout', Logout),
+			                   ('/login', Login),
+                               ('/interested', Interested),
                                ('/img', Image),
                                ],
                               debug=True)

@@ -1,38 +1,106 @@
 <!DOCTYPE html>
-<!-- 1398507617030667 -->
-<html xmlns:fb="http://www.facebook.com/2008/fbml">
-<head>
-  <link type="text/css" rel="stylesheet" href="/static/main.css" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <title>martAgain - A Social Marketplace</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/sticky-footer-navbar.css" rel="stylesheet">
+    <html xmlns:fb="http://www.facebook.com/2008/fbml">
+
+    <link type="text/css" rel="stylesheet" href="/static/main.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>martAgain</title>
+    <div id="fb-root"></div>
+    
+
+  </head>
+
+  <body>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=1398507617030667";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+    <!-- Wrap all page content here -->
+    <div id="wrap">
+
+      <!-- Fixed navbar -->
+      <div class="navbar navbar-fixed-top">
+        <div class="container">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">martAgain</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/">Home</a></li>
+              <li><a href="/announcements">Announcements</a></li>
+              <li><a href="/explore">Explore</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Products <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Nav header</li>
+                  <li><a href="#">Separated link</a></li>
+                  <li><a href="#">One more separated link</a></li>
+                </ul>
+              </li>
+            </ul>
+            {% if user %}
+            <ul class="nav navbar-nav pull-right">
+              <li><a href="/sellitem">Sell-Item</a></li>
+              <li><a href="/wishlist">Wishlist</a></li>
+              <li><a href="/messages">Messages</a></li>
+              <li class="active"><a href="/logout">(Logout)</a></li>
+            </ul>
+            {% else %}
+            <ul class="nav navbar-nav pull-right">
+              <li><a href="http://www.facebook.com/dialog/oauth?client_id=1398507617030667&redirect_uri=http://localhost:8080/login">Login</a></li>
+            </ul>
+            {% endif %}
+        
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+
+      <div class="content">
+        {% block content %}
+        {% endblock %}
+      </div>
+      <!-- Begin page content Page content should come here-->
+
+      
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="text-muted credit">A platform produced by <a href="http://martinbean.co.uk">Sajal Jain</a> and <a href="http://ryanfait.com/sticky-footer/">Gaurav Agarwal</a>.</p>
+      </div>
+    </div>
    
-  <title>martAgain</title>
-</head>
-<body>
-<div class="main-title">
-	<a href="/">martAgain</a>
-</div>
 
-
-<div class="login-area">
-{% if user %}
-<a href="/sellitem">Sell Item</a>
-<a href="/wishlist">Wish List</a>
-<a href="/messages">Messages</a>
-<a href="/logout">(Logout)</a>
-{% else %}
-<a href="http://www.facebook.com/dialog/oauth?client_id=1398507617030667&redirect_uri=http://martagainiitkgp.appspot.com/login">Login</a>
-{% endif %}
-</div>
-
-	<div class="content">
-	<div class="static-content-about">
-	<b>About</b><br/>
-	martAgain is the social market place for KGPians where KGPians can buy and sell products and help recycle!<br/> Bon Voyage!	
-	</div>
-  {% block content %}
-  {% endblock %}
-  </div>
-</body>
-
+    
+    <div class="static-content-about">
+    <b>About</b><br/>
+    martAgain is the social market place for KGPians where KGPians can buy and sell products and help recycle!<br/> Bon Voyage! 
+    </div>
+    
+  </body>
 </html>
-

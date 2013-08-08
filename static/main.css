@@ -2,7 +2,7 @@ body {
     position: relative;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 14px;
-    background-color:#efefef;
+    background-color:#ffffff;
 
     #width: 800px;
     #margin: 0 auto;
@@ -120,7 +120,8 @@ a.main-title:hover{
 
 .content{
 	width: 50%;
-	margin-left: 15%;
+	margin-top:50px;
+	margin-left: 140px;
 	}
 	
 .static-content-about{
@@ -143,10 +144,12 @@ a.main-title:hover{
 	direction			:ltr;
 	}
 	
+
+
 .post{
     background-color	:white;
-    padding				:18px;
-	
+    padding				:1px;
+	font-size			: 10px
 	font-weight			:normal;
 	font-style			:normal;
 	color				:#333333;
@@ -155,9 +158,27 @@ a.main-title:hover{
 	direction			:ltr;
 }
 
-table {border: 1px solid #000; border-collapse: collapse; }
-th, td {border: 1px solid #000; }
-
+table.post {
+	border-bottom: 1px solid #eeeeee;
+  	border-width: 50%;
+}
+table.post th {
+    text-align: left;
+	border-width: 0px;
+	padding: 1px;
+	border-style: dotted;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table.post td {
+	border-width: 0px;
+	padding: 1px;
+	border-style: dotted;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
 th.name{
   width: 450px;
 }

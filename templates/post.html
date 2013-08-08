@@ -1,68 +1,92 @@
+  <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/js/jquery-ui-1.8.20.custom.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/jquery.mousewheel-3.0.6.pack.js"></script>
+  <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
+  
+<script type="text/javascript">
+//interested Ajax request
+    $('#interestSubmit').click(function() {
+        var postid = $('#postid').val();
+        var formData = $('#interestForm').serialize();
+        $.ajax({
+                type: "POST",
+                url: '/interested', 
+                data : formData, 
+                success: function(response) {$('#doneinterested').html(response);  
+            });
+        return false;
+    }); 
+
+    function interestResults(data) {
+            if (data.status == "ok") {
+                $('#doneinterested').text("Interest Sent");
+            }
+            else 
+                alert ("not ok  " + data.status);
+        }
+
+</script>
 <div class="post">
-<table>
-<colgroup>
-       <col span="1" style="width: 70%;">
-       <col span="1" style="width: 30%;">
-</colgroup>
-    <thead>
-        <tr>
-            <th class="name" colspan="2">
-				<div class="post-name">
-			     {{p.name}}
-    		     <small>{{p.created.strftime("%b %d, %Y")}}</small>
-				</div>
-			</th>
-            <th class="details">Details</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan="5" colspan="2">
-				<div class="post-avatar">
-		  		<img style="height:100px; width:100px;"src="{{ ['img?img_id=',p.key()]|join }}"></img>
-				</div>
-				<div class="post-content">
-        		 {{p.detail}}
-    			</div>            
-			</td>
-            <td><div class="post-content">
-      			 {{p.producttype}}
-    			</div>	
-			</td>
-        </tr>
-        <tr>
-           
-            <td>
-			<div class="post-content">
-		 	{{p.author}}
-     		</div>			
-			</td>
-        </tr>
-		<tr>
-           
-            <td>
-			<div class="post-content">
-		 	{{p.author}}
-     		</div>			
-			</td>
-        </tr>
-		<tr>
-           
-            <td>
-			<div class="post-content">
-		 	{{p.author}}
-     		</div>			
-			</td>
-        </tr>
-		<tr>
-           
-            <td>
-			<div class="post-content">
-		 	{{p.author}}
-     		</div>			
-			</td>
-        </tr>
-		
-    </tbody>
-</table>
+    <table class="post">
+       <thead>
+            <tr>
+                <th class="name" colspan="2">
+    				<div class="post-name">
+                        <div class="page-header"><h4>{{p.name}}</h4><div>
+        		    </div>
+    			</th>
+                <th>
+                    <div class="post-content">
+                    <code>{{p.created.strftime("%b %d, %Y")}}</code>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="5" colspan="2">
+    				<div class="post-avatar">
+    		  		<img style="height:100px; width:100px;"src="{{ ['img?img_id=',p.key()]|join }}"></img>
+    				</div>
+    				<div class="post-content">{{p.detail}}</div>            
+    			</td>
+                <td>
+                    <div class="post-content">{{p.producttype}}</div>	
+    			</td>
+            </tr>
+            <tr>          
+                <td>
+    			</td>
+            </tr>
+    		<tr>
+                <td>
+    			<div class="post-content">{{p.author.name}}</div>			
+    			</td>
+            </tr>
+    		<tr>
+                <td>
+    			<div class="post-content">{{p.author.fid}}</div>			
+    			</td>
+            </tr>
+    		<tr>
+                <td>
+    			<div class="post-content">
+        		 	<form method="post" id="interestForm" action="/interested">                        
+                        <label for="postid"></label>
+                        <input type="hidden" name="postkey" id="postkey" value="{{ p.key() }}"/>
+                        <p class="doneinterested" id="doneinterested"></p>
+                        <input type="hidden" name="ajax" value="yes" />
+                        <button class="btn btn-large btn-primary btn-block" type="submit" value="Interested" id="interestSubmit">
+                             I'm Interested   
+                        </button> 
+                    </form>
+         		</div>			
+    			</td>
+            </tr>
+    	</tbody>
+    </table>
+    <div class="fb-comments" data-href="{{ ['http://localhost:8080/#',p.key().id()]|join }}" data-width="440"></div>
 </div>
+
+

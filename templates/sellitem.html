@@ -17,40 +17,47 @@
 </script>
 
 
-  <h2>Sell Item</h2>
+  <div class="page-header">
+     <h1>Sell Item</h1>
+  </div>
 
     <form method="post" enctype="multipart/form-data">
       <label>
-        <div>Product Type</div>
+        <p class="lead">Product Type
         <select name="producttype">
          {% for producttype in productseq %}
             <option  value="{{ producttype }}">{{ producttype }}</option>
          {% endfor %}
          </select>
+       </p>
       </label>
 
       <label>
-        <div>Product Name</div>
-        <input type = "text" name="name">{{name}}</input>
+        <p class="lead">Product Name
+        <input type ="text" name="name">{{name}}</input>
+      </p>
       </label>
 
 	<label>
-        <div>Product Details</div>
+        <p class="lead">Product Details
         <textarea name="detail" onchange="checkWordLen(this);">{{detail}}</textarea>
+      </p>
       </label>
 
 	<label>
-	<div><label>Product Images</label></div>
-        <div><input type="file" name="img"/></div>
+	      <p class="lead">Product Images
+        <input type="file" name="img"/>
+      </p>
 	</label>
 
 	<label>
-        <div>Seller Name</div>
-        <input type ="text" name="author" value="{{author}}">
-      	</label>
+        <p class="lead">Your detail ID is {{ user }} </p>
+  </label>
 
       <div class="error">{{error}}</div>
 
-      <input type="submit">
+      <button class="btn btn-large btn-primary btn-block" type="submit">
+        Submit
+      </button>
     </form>
 {% endblock %}
