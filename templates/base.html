@@ -51,6 +51,23 @@
                   });
         });
 
+        $(document).ready(
+            function(){
+                $(".showdetail").click(function () {
+                    var $toggled = $(this).attr('href');
+                    $($toggled).toggle();
+                    });
+        });
+        //sending message facebook script
+        function facebook_send_message(to) {
+        FB.ui({
+          app_id:'1398507617030667',
+          method: 'send',
+          link: 'https://google.com',
+          to:to,
+         });
+        }
+
 </script>
     
 

@@ -148,6 +148,7 @@ class Post(db.Model):
     producttype = db.StringProperty(required = True)
     name = db.TextProperty(required = True)
     detail = db.TextProperty(required = True)
+    price = db.FloatProperty(required = False)
     author = db.ReferenceProperty(User, required = True)
     avatar = db.BlobProperty(required = False)
     created = db.DateTimeProperty(auto_now_add = True)
@@ -160,12 +161,13 @@ class Post(db.Model):
 
     def as_dict(self):
         time_fmt = '%c'
-        d = {'product_type': self.producttype,
-	     'name'   : self.name,
-	     'detail' : self.detail,
-             'author' : self.author,
-             'created': self.created.strftime(time_fmt),
-             'last_modified': self.last_modified.strftime(time_fmt)}
+        d = {   'product_type': self.producttype,
+	            'name'   : self.name,
+	            'detail' : self.detail,
+                'price'  : self.price,
+                'author' : self.author,
+                'created': self.created.strftime(time_fmt),
+                'last_modified': self.last_modified.strftime(time_fmt)}
         return d
 
 
@@ -207,7 +209,7 @@ class SellItem(BlogHandler):
     def get(self):
         productseq = ['Computer', 'Bicycle', 'Book']
         if self.user:
-	    self.render("sellitem.html", productseq = productseq)
+	       self.render("sellitem.html", productseq = productseq)
         else:
             self.redirect("/")
 
@@ -219,17 +221,21 @@ class SellItem(BlogHandler):
         producttype = self.request.get('producttype')
         name = self.request.get('name')
         detail = self.request.get('detail')
-        print self.user
+        if self.request.get('price').isnumeric():
+            price = float(self.request.get('price'))
         author = User.by_fid(self.user)
-        print author
         pseudoavatar = self.request.get('img')
         #avatar = db.Blob(pseudoavatar)
         avatar = "abc"	
 	
+        print price
         if producttype and name and detail and author:
             p = Post(parent = blog_key(), producttype = producttype, name = name, detail = detail, avatar = avatar, author = author)
+            if price:
+                p.price = price
             p.put()
             self.redirect('/%s' % str(p.key().id()))
+            #self.redirect('/')
         else:
             error = "fill in the details, please!"
             self.render("sellitem.html", productseq = productseq, producttype = producttype, name = name, detail = detail, author = author, avatar = avatar, error=error) #add author here as well

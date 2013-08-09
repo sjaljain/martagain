@@ -4,7 +4,7 @@
             <tr>
                 <th class="name" colspan="2">
     				<div class="post-name">
-                        <div class="page-header"><h4>{{p.name}}</h4><div>
+                        <div class="page-header"><h4><a href="/{{ p.key().id() }}">{{p.name}}</a></h4><div>
         		    </div>
     			</th>
                 <th>
@@ -20,24 +20,27 @@
     				<div class="post-avatar">
     		  		<img style="height:100px; width:100px;"src="{{ ['img?img_id=',p.key()]|join }}"></img>
     				</div>
-    				<div class="post-content">{{p.detail}}</div>            
+    				<div class="post-content" id="{{ ['detailbox',p.key().id()]|join }}" style="display:none;">{{p.detail}}</div>            
     			</td>
                 <td>
-                    <div class="post-content">{{p.producttype}}</div>	
+                   <div class="post-content"><small>[{{ p.producttype }}]</small></div>
     			</td>
             </tr>
             <tr>          
                 <td>
+                   <div class="post-content">Rs. {{ p.price }}</div> 
     			</td>
             </tr>
     		<tr>
                 <td>
-    			<div class="post-content">{{p.author.name}}</div>			
+    			<div class="post-content">P.M - <a href="" onclick="javscript:facebook_send_message({{p.author.fid}});">
+                    {{p.author.name}}</a>
+                </div>			
     			</td>
             </tr>
     		<tr>
                 <td>
-    			<div class="post-content">{{p.author.fid}}</div>			
+    			<div class="post-content"><a class="showdetail" href="{{ ['#detailbox',p.key().id()]|join }}">Details</a></div>			
     			</td>
             </tr>
     		<tr>
