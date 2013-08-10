@@ -25,7 +25,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
 secret = 'fart'
-
+dev_mode = 'on'
 
 def make_secure_val(val):
     return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
@@ -144,17 +144,41 @@ class Logout(BlogHandler):
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
+
+class Wish(db.Model):
+    producttype = db.StringProperty(required = True)
+    detail = db.TextProperty(required = True)
+    author = db.ReferenceProperty(User, required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
+
+
+    def render(self):
+        self._render_text = self.detail.replace('\n', '<br>')
+        return render_str("wish.html", w = self)
+
+    def as_dict(self):
+        time_fmt = '%c'
+        d = {   'product_type': self.producttype,
+                'name'   : self.name,
+                'detail' : self.detail,
+                'author' : self.author,
+                'created': self.created.strftime(time_fmt),
+                'last_modified': self.last_modified.strftime(time_fmt)}
+        return d
+
 class Post(db.Model):
     producttype = db.StringProperty(required = True)
     name = db.TextProperty(required = True)
     detail = db.TextProperty(required = True)
     price = db.FloatProperty(required = False)
     author = db.ReferenceProperty(User, required = True)
+    wish = db.ReferenceProperty(Wish, required = False)
     avatar = db.BlobProperty(required = False)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
 
-
+   
     def render(self):
         self._render_text = self.detail.replace('\n', '<br>')
         return render_str("post.html", p = self)
@@ -166,29 +190,30 @@ class Post(db.Model):
 	            'detail' : self.detail,
                 'price'  : self.price,
                 'author' : self.author,
+                'avatar' : self.avatar,
+                'wish'   : self.wish,
                 'created': self.created.strftime(time_fmt),
                 'last_modified': self.last_modified.strftime(time_fmt)}
         return d
 
 
 
+
+
+
 class BlogFront(BlogHandler):
     def get(self):
+       	posts = greetings = Post.all().order('-created')
+    	if self.format == 'html':
+    	     self.render('postfront.html', posts = posts)
+    	else:
+    	     return self.render_json([p.as_dict() for p in posts])
 
-# Add the lines below for updating the datastore
-# Demo code to add extra column 'authors' to existing table
-#		query = Query("Post")
-#		for item in query.Run():
-#			if not 'author' in item:
-#				item['author'] = "Sajal Jain"
-#				print "author added"
-#			Put(item)
+class WishFront(BlogHandler):
+    def get(self):
+        wishes = greeting = Wish.all().order('-created')    
+        self.render('wishfront.html', wishes = wishes)
         
-	posts = greetings = Post.all().order('-created')
-	if self.format == 'html':
-	     self.render('front.html', posts = posts)
-	else:
-	     return self.render_json([p.as_dict() for p in posts])
 
 class PostPage(BlogHandler):
     def get(self, post_id):
@@ -199,17 +224,38 @@ class PostPage(BlogHandler):
             self.error(404)
             return
         if self.format == 'html':
-            self.render("permalink.html", post = post)
+            self.render("postpermalink.html", post = post)
         else:
             self.render_json(post.as_dict())
+
+class WishPage(BlogHandler):
+    def get(self, wish_id):
+        key = db.Key.from_path('Wish', int(wish_id), parent=blog_key())
+        wish = db.get(key)
+
+        if not wish:
+            self.error(404)
+            return
+        if self.format == 'html':
+            self.render("wishpermalink.html", wish = wish)
+        else:
+            self.render_json(wish.as_dict())
 
 
 
 class SellItem(BlogHandler):
+    wish = None
     def get(self):
+        global wish
+        wish = None
         productseq = ['Computer', 'Bicycle', 'Book']
-        if self.user:
-	       self.render("sellitem.html", productseq = productseq)
+        if self.request.get('wishkey'):
+            wish = db.get(self.request.get('wishkey'))
+
+        if self.user and wish:
+	       self.render("sellitem.html", productseq = productseq, wish = wish)
+        elif self.user:
+            self.render("sellitem.html", productseq = productseq)
         else:
             self.redirect("/")
 
@@ -225,6 +271,10 @@ class SellItem(BlogHandler):
         price = None
         if self.request.get('price').isnumeric():
             price = float(self.request.get('price'))
+        wish = None
+        if self.request.get('wishkey'):
+            wish = db.get(self.request.get('wishkey'))
+        
         avatar = None
         if self.request.get('img'):
             pseudoavatar = self.request.get('img')
@@ -236,37 +286,59 @@ class SellItem(BlogHandler):
                 p.price = price
             if avatar:
                 p.avatar = avatar
+            if wish:
+                p.wish = wish
+               
             p.put()
-            self.redirect('/%s' % str(p.key().id()))
+            self.redirect('/post/%s' % str(p.key().id()))
             #self.redirect('/')
         else:
             error = "fill in the details, please!"
-            self.render("sellitem.html", productseq = productseq, producttype = producttype, name = name, detail = detail, author = author, error=error) #add author here as well
+            self.render("sellitem.html", productseq = productseq, producttype = producttype, wish = wish, name = name, detail = detail, author = author, error=error) #add author here as well
+
+class AddWish(BlogHandler):
+    def get(self):
+        productseq = ['Computer', 'Bicycle', 'Book']
+        if self.user:
+           self.render("addwish.html", productseq = productseq)
+        else:
+            self.redirect("/")
+
+    def post(self):
+        productseq = ['Computer', 'Bicycle', 'Book']
+        if not self.user:
+            self.redirect('/')
+
+        producttype = self.request.get('producttype')
+        detail = self.request.get('detail')
+        author = User.by_fid(self.user)
+        
+        if producttype and detail and author:
+            w = Wish(parent = blog_key(), producttype = producttype, detail = detail, author = author)
+            w.put()
+            #print "a wish has been added \n \n"
+            self.redirect('/wish/%s' % str(w.key().id()))
+            #self.redirect('/wishlist')
+        else:
+            error = "fill in the details, please!"
+            self.render("addwish.html", productseq = productseq, producttype = producttype, detail = detail, author = author, error=error) #add author here as well
+
 
 class Interest(db.Model):
     user = db.ReferenceProperty(User)
     post = db.ReferenceProperty(Post)
     created = db.DateTimeProperty(auto_now_add = True)
-
-
-
 class Interested(BlogHandler):
     def get(self):
         self.redirect('/')
 
     def post(self):
-        print "I am here \n\n\n"
         postkey = self.request.get("postkey")
-        print postkey
         post = db.get(postkey)
         u = User.by_fid(self.user)
         i = Interest(user = u, post = post)
         i.put()
         self.write('<p>Interest sent</p>')
-        #r = json.dumps({"status" : "ok", "interest": u.email})
-        #self.response.headers["Content-Type"] = "application/json; charset=UTF-8"
-        #self.write(r) 
-
 
 class Image(webapp2.RequestHandler):
     def get(self):
@@ -277,14 +349,13 @@ class Image(webapp2.RequestHandler):
         else:
             self.response.out.write('No image')
 
-
-
-
-
 app = webapp2.WSGIApplication([#('/', MainPage),
                                ('/?(?:.json)?', BlogFront),
-                               ('/([0-9]+)(?:.json)?', PostPage),
+                               ('/post/([0-9]+)(?:.json)?', PostPage),
+                               ('/wish/([0-9]+)(?:.json)?', WishPage),
+                               ('/wishlist',WishFront),
                                ('/sellitem', SellItem),
+                               ('/addwish', AddWish),
 		                       ('/logout', Logout),
 			                   ('/login', Login),
                                ('/interested', Interested),

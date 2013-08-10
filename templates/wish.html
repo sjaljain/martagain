@@ -1,0 +1,72 @@
+  
+ {% if dev_mode == 'on' %}<script type="text/javascipt">var link="http://localhost:8080/"</script> 
+ {% else %} <script type="text/javascipt">var link="http://martagainiitkgp.appspot.com/"</script> 
+ {% endif %}
+
+ <div class="post">
+    <table class="post">
+       <thead>
+            <tr>
+                <th class="name" colspan="2">
+                    <div class="post-name">
+                        <div class="page-header"><h4><a href="/wish/{{ w.key().id() }}"><code>{{w.created.strftime("%b %d, %Y")}}</code></a></h4><div>
+                    </div>
+                </th>
+                <th>
+                    <div class="post-content">
+                    
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="3" colspan="2" >
+                     <div class="post-content" id="{{ ['detailbox',w.key().id()]|join }}">{{w.detail}}</div>
+                </td>
+                
+                <td>
+                   <div class="post-content">[{{ w.producttype }}]</div>
+                </td>
+            </tr>
+
+            
+            <tr>
+                <td>
+                <div class="post-content"> <a href="" onclick="javscript:facebook_send_message({{ w.author.fid }}, 
+                    '{{['http://martagainiitkgp.appspot.com/',w.key().id()]|join }}');">
+                    {{w.author.name}}</a>
+                </div>          
+                </td>
+            </tr>
+            <tr>
+                <td>
+                <div class="post-content"><a class="showdetail" href="{{ ['#detailbox',w.key().id()]|join }}">Details</a></div>         
+                </td>
+            </tr>
+            <tr>
+                <td id="maincontent" rowspan="1" colspan="2">
+                    <a style="vertical-align:bottom;" class="showcomment" href="{{ ['#fbcommentbox',w.key().id()]|join }}">
+                        Comments<br/>
+                    </a>            
+                    <div id="{{ ['fbcommentbox',w.key().id()]|join }}" style="display:none;" class="fb-comments" 
+                            data-href="{{ ['http://localhost:8080/#',w.key().id()]|join }}" data-width="440">
+                    </div> 
+                </td>
+                    
+                <td>
+                <div class="post-content">
+                        <button class="btn btn-large btn-primary btn-block" type="submit" value="Havewish" id="Havewish" 
+                         onclick="javascript:window.location.replace('/sellitem?wishkey={{ w.key() }}');">
+                             I have this   
+                        </button> 
+                    
+                </div>          
+                </td>
+            </tr>
+        </tbody>
+    </table>
+         
+</div>
+
+

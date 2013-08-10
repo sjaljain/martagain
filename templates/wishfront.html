@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  {% for w in wishes %}
+    {{ w.render() | safe }}
+ 
+  {% endfor %}
+
+{% endblock %}

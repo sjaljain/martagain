@@ -18,16 +18,10 @@
 
 
   <div class="page-header">
-     <h1>Sell Item</h1>
+     <h1>Add Your Wish</h1>
   </div>
 
     <form method="post" enctype="multipart/form-data">
-      <label>
-        {% if wish %}
-          <p class="lead">This is reply to wish <a href="/wish/{{wish.key().id()}}">{{ wish.key().id() }} </a></p>
-          <input type="hidden" value="{{ wish.key() }}" name="wishkey"/>
-        {% endif %}
-    </label>
       <label>
         <p class="lead">Product Type
         <select name="producttype">
@@ -38,17 +32,7 @@
        </p>
       </label>
 
-      <label>
-        <p class="lead">Product Name
-        <input type ="text" name="name">{{name}}</input>
-      </p>
-      </label>
-
-      <label>
-        <p class="lead">Ask Price - Rs.
-        <input type ="text" name="price">{{price}}</input>
-      </p>
-      </label>
+     
 
 	<label>
         <p class="lead">Product Details
@@ -56,11 +40,6 @@
       </p>
       </label>
 
-	<label>
-	      <p class="lead">Product Images
-        <input type="file" name="img"/>
-      </p>
-	</label>
 
 	<label>
         <p class="lead">Your detail ID is {{ user }} </p>

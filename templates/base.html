@@ -67,11 +67,11 @@
 
 
         //sending message facebook script
-        function facebook_send_message(to) {
+        function facebook_send_message(to, postpermanantlink) {
         FB.ui({
           app_id:'1398507617030667',
           method: 'send',
-          link: 'https://google.com',
+          link: postpermanantlink,
           to:to,
          });
         }
@@ -104,7 +104,7 @@
           <div class="nav-collapse collapse">
             <ul class="nav navbar-nav">
               <li class="active"><a href="/">Home</a></li>
-              <li><a href="/announcements">Announcements</a></li>
+              <li><a href="/wishlist">Wishlist</a></li>
               <li><a href="/explore">Explore</a></li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Products <b class="caret"></b></a>
@@ -122,8 +122,7 @@
             {% if user %}
             <ul class="nav navbar-nav pull-right">
               <li><a href="/sellitem">Sell-Item</a></li>
-              <li><a href="/wishlist">Wishlist</a></li>
-              <li><a href="/messages">Messages</a></li>
+              <li><a href="/addwish">Add Wish</a></li>
               <li class="active"><a href="/logout">(Logout)</a></li>
             </ul>
             {% else %}
