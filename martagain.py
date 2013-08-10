@@ -221,24 +221,27 @@ class SellItem(BlogHandler):
         producttype = self.request.get('producttype')
         name = self.request.get('name')
         detail = self.request.get('detail')
+        author = User.by_fid(self.user)
+        price = None
         if self.request.get('price').isnumeric():
             price = float(self.request.get('price'))
-        author = User.by_fid(self.user)
-        pseudoavatar = self.request.get('img')
-        #avatar = db.Blob(pseudoavatar)
-        avatar = "abc"	
-	
-        print price
+        avatar = None
+        if self.request.get('img'):
+            pseudoavatar = self.request.get('img')
+            avatar = db.Blob(pseudoavatar)   
+
         if producttype and name and detail and author:
-            p = Post(parent = blog_key(), producttype = producttype, name = name, detail = detail, avatar = avatar, author = author)
+            p = Post(parent = blog_key(), producttype = producttype, name = name, detail = detail, author = author)
             if price:
                 p.price = price
+            if avatar:
+                p.avatar = avatar
             p.put()
             self.redirect('/%s' % str(p.key().id()))
             #self.redirect('/')
         else:
             error = "fill in the details, please!"
-            self.render("sellitem.html", productseq = productseq, producttype = producttype, name = name, detail = detail, author = author, avatar = avatar, error=error) #add author here as well
+            self.render("sellitem.html", productseq = productseq, producttype = producttype, name = name, detail = detail, author = author, error=error) #add author here as well
 
 class Interest(db.Model):
     user = db.ReferenceProperty(User)
@@ -249,14 +252,17 @@ class Interest(db.Model):
 
 class Interested(BlogHandler):
     def get(self):
-        self.redirect("/")
+        self.redirect('/')
 
     def post(self):
+        print "I am here \n\n\n"
         postkey = self.request.get("postkey")
+        print postkey
         post = db.get(postkey)
         u = User.by_fid(self.user)
         i = Interest(user = u, post = post)
         i.put()
+        self.write('<p>Interest sent</p>')
         #r = json.dumps({"status" : "ok", "interest": u.email})
         #self.response.headers["Content-Type"] = "application/json; charset=UTF-8"
         #self.write(r) 

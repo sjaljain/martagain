@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="../static/js/bootstrap.min.js"></script>
     <title>martAgain - A Social Marketplace</title>
 
@@ -22,32 +23,31 @@
     <div id="fb-root"></div>
     <!-- Script used in post.html -->
     <script type="text/javascript">
-    $('#interestSubmit').click(function() {
-        var postid = $('#postid').val();
-        var formData = $('#interestForm').serialize();
-        $.ajax({
-                type: "POST",
-                url: '/interested', 
-                data : formData, 
-                success: function(response) {$('#doneinterested').html(response);  
-            }});
-        return false;
-    }); 
+        $(document).ready(
+            function(){ 
+                        $('#interestSubmit').click(function() {
+                            var postkey = $('#postkey').val();
+                            
 
-    function interestResults(data) {
-            if (data.status == "ok") {
-                $('#doneinterested').text("Interest Sent");
-            }
-            else 
-                alert ("not ok  " + data.status);
-        }
+                        $.ajax({
+                                type:'POST', 
+                                url:'/interested', 
+                                data:'postkey=' + postkey, 
+                                success: function() {
+                                    $('#interestSubmit').html('Sent Interest');
+                                }
+                            });   
+                        });
+                      }); 
+
+
         //function for showing comments on click
         $(document).ready(
             function(){
                 $(".showcomment").click(function () {
                     var $toggled = $(this).attr('href');
                     $($toggled).toggle();
-                    $(this).hide();
+                    //$(this).hide();
                   });
         });
 
@@ -58,6 +58,14 @@
                     $($toggled).toggle();
                     });
         });
+
+        
+
+      function interestResults(data) {
+            alert("It is successful")
+          }
+
+
         //sending message facebook script
         function facebook_send_message(to) {
         FB.ui({

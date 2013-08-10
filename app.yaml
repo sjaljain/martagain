@@ -11,6 +11,9 @@ handlers:
 - url: /.*
   script: martagain.app
 
+builtins:
+- remote_api: on
+
 libraries:
 - name: jinja2
   version: latest

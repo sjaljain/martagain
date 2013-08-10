@@ -158,8 +158,14 @@ a.main-title:hover{
 	direction			:ltr;
 }
 
+#maincontent {
+	border-bottom: 1px dotted #aaa;
+}
+
+.showcomment{
+	
+}
 table.post {
-	border-bottom: 1px solid #eeeeee;
   	border-width: 50%;
 }
 table.post th {

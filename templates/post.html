@@ -16,19 +16,21 @@
         </thead>
         <tbody>
             <tr>
-                <td rowspan="5" colspan="2">
+                <td rowspan="4" colspan="2" >
     				<div class="post-avatar">
-    		  		<img style="height:100px; width:100px;"src="{{ ['img?img_id=',p.key()]|join }}"></img>
+    		  		<img style="max-height:150px; width:auto;" src="{{ ['img?img_id=',p.key()]|join }}"></img>
     				</div>
-    				<div class="post-content" id="{{ ['detailbox',p.key().id()]|join }}" style="display:none;">{{p.detail}}</div>            
-    			</td>
+    				<div class="post-content" id="{{ ['detailbox',p.key().id()]|join }}" style="display:none;">{{p.detail}}</div>
+                </td>
+                
                 <td>
-                   <div class="post-content"><small>[{{ p.producttype }}]</small></div>
+                   <div class="post-content">[{{ p.producttype }}]</div>
     			</td>
             </tr>
+
             <tr>          
                 <td>
-                   <div class="post-content">Rs. {{ p.price }}</div> 
+                   <div class="post-content">{% if p.price %}Rs. {{ p.price }} {% else %} Bargainable {% endif %}</div> 
     			</td>
             </tr>
     		<tr>
@@ -43,26 +45,29 @@
     			<div class="post-content"><a class="showdetail" href="{{ ['#detailbox',p.key().id()]|join }}">Details</a></div>			
     			</td>
             </tr>
-    		<tr>
+            <tr>
+                <td id="maincontent" rowspan="1" colspan="2">
+                    <a style="vertical-align:bottom;" class="showcomment" href="{{ ['#fbcommentbox',p.key().id()]|join }}">
+                        Comments<br/>
+                    </a>            
+                    <div id="{{ ['fbcommentbox',p.key().id()]|join }}" style="display:none;" class="fb-comments" 
+                            data-href="{{ ['http://localhost:8080/#',p.key().id()]|join }}" data-width="440">
+                    </div> 
+                </td>
+               		
                 <td>
     			<div class="post-content">
-        		 	<form method="post" id="interestForm" action="/interested">                        
-                        <label for="postid"></label>
-                        <input type="hidden" name="postkey" id="postkey" value="{{ p.key() }}"/>
-                        <p class="doneinterested" id="doneinterested"></p>
-                        <input type="hidden" name="ajax" value="yes" />
-                        <button class="btn btn-large btn-primary btn-block" type="submit" value="Interested" id="interestSubmit">
+                         <input type="hidden" value="{{ p.key() }}" id="postkey" />
+        		         <button class="btn btn-large btn-primary btn-block" type="submit" value="Interested" id="interestSubmit">
                              I'm Interested   
                         </button> 
-                    </form>
+                    
          		</div>			
     			</td>
             </tr>
     	</tbody>
     </table>
-         <a class="showcomment" href="{{ ['#fbcommentbox',p.key().id()]|join }}">Comments</a>            
-        <div id="{{ ['fbcommentbox',p.key().id()]|join }}" style="display:none;" class="fb-comments" 
-             data-href="{{ ['http://localhost:8080/#',p.key().id()]|join }}" data-width="440"></div>
+         
 </div>
 
 

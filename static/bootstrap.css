@@ -507,9 +507,9 @@ h4 small,
 }
 
 .page-header {
-  padding-bottom: 9px;
-  margin: 40px 0 0px;
-  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 0px;
+  margin: 0px 0 0px;
+  border-bottom: 0px dotted #aaa;
   border-width: 50%;
 }
 
@@ -671,7 +671,7 @@ pre {
 }
 
 code {
-  padding: 2px 4px;
+  padding: 0px;
   font-size: 90%;
   color: #c7254e;
   white-space: nowrap;
