@@ -21,7 +21,7 @@
     			</th>
                 <th>
                     <div class="post-content">
-                    <code>{{p.created.strftime("%b %d, %Y")}}</code>
+                    <h6>{{p.created.strftime("%b %d, %Y")}}</h6>
                     </div>
                 </th>
             </tr>
@@ -36,7 +36,7 @@
                 </td>
                 
                 <td>
-                   <div class="post-content">[{{ p.producttype }}]</div>
+                   <div class="post-content">{{ p.producttype }}</div>
     			</td>
             </tr>
 
@@ -60,6 +60,10 @@
             </tr>
             <tr>
                 <td id="maincontent" rowspan="1" colspan="2">
+                    <a  style="vertical-align:bottom;" class="popup" 
+                        href="/showinterested?postkey={{ p.key() }}">
+                        People Interested<br/>
+                    </a> 
                     <a style="vertical-align:bottom;" class="showcomment" href="{{ ['#fbcommentbox',p.key().id()]|join }}">
                         Comments<br/>
                     </a>            

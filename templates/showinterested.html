@@ -1,0 +1,30 @@
+  <head>
+  <title>
+  	People who are interested
+  </title>
+  </head>
+
+  <script type="text/javascript">
+  function facebook_send_message(to, postpermanantlink) {
+        FB.ui({
+          app_id:'1398507617030667',
+          method: 'send',
+          link: postpermanantlink,
+          to:to,
+         });
+        }
+  </script>
+  {% for i in interests %}
+    <div>
+    	<img src="https://graph.facebook.com/{{ i.user.fid }}/picture?type=square" /> 
+    	<p>
+    		<a href="" onclick="javscript:facebook_send_message({{ i.user.fid }}, 
+                    '{{['http://martagainiitkgp.appspot.com/',i.post.key().id()]|join }}');">
+                    {{ i.user.name}}
+            </a>
+    	</p>
+    <hr/>
+    </div>
+ 
+  {% endfor %}
+  

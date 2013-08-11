@@ -1,0 +1,8 @@
+  {% for i in interests %}
+    <div>
+    	<img src="https://graph.facebook.com/{{ i.user.fid }}/picture?type=normal" /> {{ i.user.name}}
+    <hr/>
+    </div>
+ 
+  {% endfor %}
+  

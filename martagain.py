@@ -256,10 +256,76 @@ class Post(db.Model):
 class BlogFront(BlogHandler):
     def get(self):
        	posts, age = get_posts()
-    	if self.format == 'html':
+        if self.format == 'html':
     	     self.render('postfront.html', posts = posts, age = age_str(age))
     	else:
     	     return self.render_json([p.as_dict() for p in posts])
+
+class Computers(BlogHandler):
+    def get(self):
+        posts, age = get_posts()
+        computers = []
+        for p in posts:
+            if p.producttype == 'Book':
+                computers.append(p)
+
+        if self.format == 'html':
+             self.render('postfront.html', posts = computers, age = age_str(age))
+        else:
+             return self.render_json([p.as_dict() for p in posts])
+
+class Books(BlogHandler):
+    def get(self):
+        posts, age = get_posts()
+        books = []
+        for p in posts:
+            if p.producttype == 'Book':
+                books.append(p)
+
+        if self.format == 'html':
+             self.render('postfront.html', posts = books, age = age_str(age))
+        else:
+             return self.render_json([p.as_dict() for p in posts])
+
+class Bicycles(BlogHandler):
+    def get(self):
+        posts, age = get_posts()
+        bicycles = []
+        for p in posts:
+            if p.producttype == 'Book':
+                bicycles.append(p)
+
+        if self.format == 'html':
+             self.render('postfront.html', posts = bicycles, age = age_str(age))
+        else:
+             return self.render_json([p.as_dict() for p in posts])
+
+class MyItems(BlogHandler):
+    def get(self):
+        posts, age = get_posts()
+        myitems = []
+        for p in posts:
+            if p.author.fid == self.user:
+                myitems.append(p)
+
+        if self.format == 'html':
+             self.render('postfront.html', posts = myitems, age = age_str(age))
+        else:
+             return self.render_json([p.as_dict() for p in posts])
+
+class MyWishes(BlogHandler):
+    def get(self):
+        wishes, age = get_wishes()
+        mywishes = []
+        for w in wishes:
+            if w.author.fid == self.user:
+                mywishes.append(w)
+
+        if self.format == 'html':
+             self.render('wishfront.html', wishes = mywishes, age = age_str(age))
+        else:
+             return self.render_json([w.as_dict() for w in wishes])
+
 
 class WishFront(BlogHandler):
     def get(self):
@@ -381,9 +447,7 @@ class AddWish(BlogHandler):
         if producttype and detail and author:
             w = Wish(parent = blog_key(), producttype = producttype, detail = detail, author = author)
             add_wish(w)
-            #print "a wish has been added \n \n"
             self.redirect('/wish/%s' % str(w.key().id()))
-            #self.redirect('/wishlist')
         else:
             error = "fill in the details, please!"
             self.render("addwish.html", productseq = productseq, producttype = producttype, detail = detail, author = author, error=error) #add author here as well
@@ -393,6 +457,12 @@ class Interest(db.Model):
     user = db.ReferenceProperty(User)
     post = db.ReferenceProperty(Post)
     created = db.DateTimeProperty(auto_now_add = True)
+
+    @classmethod
+    def by_data(cls, user, post):
+        i = Interest.all().filter(' user =', user).filter('post = ', post).get()
+        return i
+
 class Interested(BlogHandler):
     def get(self):
         self.redirect('/')
@@ -401,9 +471,40 @@ class Interested(BlogHandler):
         postkey = self.request.get("postkey")
         post = db.get(postkey)
         u = User.by_fid(self.user)
-        i = Interest(user = u, post = post)
-        i.put()
-        self.write('<p>Interest sent</p>')
+        i = Interest.by_data(u, post)
+        if not i:
+            i = Interest(user = u, post = post)
+            i.put()
+            self.write('<p>Interest sent</p>')
+        else:
+            self.write('<p>Had already sent</p>')
+
+class Feed(db.Model):
+    contact = db.StringProperty(required = False)
+    text = db.TextProperty(required = False)
+    created = db.DateTimeProperty(auto_now_add = True)
+
+
+class Feedback(BlogHandler):
+    def get(self):
+        self.redirect('/')
+
+    def post(self):
+        contact = self.request.get("email")
+        text = self.request.get("feedtext")
+        f = Feed(contact = contact, text = text)
+        f.put()
+        print "received feedback"
+        self.write('<p>Feedback Sent</p>')
+        self.redirect('/')
+
+class ShowInterested(BlogHandler):
+    def get(self):
+        postkey = self.request.get('postkey')
+        post = db.get(postkey)
+        interests = db.GqlQuery("SELECT * FROM Interest " +
+                "WHERE post = :1",post)
+        self.render("showinterested.html", interests = interests)
 
 class Image(webapp2.RequestHandler):
     def get(self):
@@ -417,10 +518,18 @@ class Image(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([#('/', MainPage),
                                ('/?(?:.json)?', BlogFront),
                                ('/post/([0-9]+)(?:.json)?', PostPage),
+                               ('/books', Books),
+                               ('/computers', Computers),
+                               ('/bicycles', Bicycles),
+                               ('/myitems', MyItems),
+                               ('/mywishes', MyWishes),
                                ('/wish/([0-9]+)(?:.json)?', WishPage),
                                ('/wishlist',WishFront),
+                               ('/showinterested', ShowInterested),
+                               #('/user',UserPage),
                                ('/sellitem', SellItem),
                                ('/addwish', AddWish),
+                               ('/feedback', Feedback),
 		                       ('/logout', Logout),
 			                   ('/login', Login),
                                ('/interested', Interested),

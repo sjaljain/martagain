@@ -33,8 +33,8 @@
                                 type:'POST', 
                                 url:'/interested', 
                                 data:'postkey=' + postkey, 
-                                success: function() {
-                                    $('#interestSubmit').html('Sent Interest');
+                                success: function(response) {
+                                    $('#interestSubmit').html(response);
                                 }
                             });   
                         });
@@ -59,6 +59,20 @@
                     });
         });
 
+        $(document).ready(
+            function(){
+                       $('.popup').click(function (event) {
+                        event.preventDefault();
+                        var w = 300;
+                        var h = 300;
+                        var left = (screen.width/2)-(w/2);
+                        var top = (screen.height/2)-(h/2);
+                        window.open($(this).attr("href"), "People who showed Interest", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+
+                        //window.open($(this).attr("href"), "popupWindow", "width=600,height=600,scrollbars=yes");
+          });
+            });
+
         
 
       function interestResults(data) {
@@ -75,6 +89,12 @@
           to:to,
          });
         }
+
+   
+        $('.popup').click(function (event) {
+              event.preventDefault();
+              window.open($(this).attr("href"), "popupWindow", "width=600,height=600,scrollbars=yes");
+          });
 
 </script>
     
@@ -109,20 +129,39 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Products <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
+                  <li><a href="/computers">Computers</a></li>
+                  <li><a href="/books">Books</a></li>
+                  <li><a href="/bicycles">Bicycles</a></li>
+                  <!--
                   <li class="divider"></li>
                   <li class="dropdown-header">Nav header</li>
                   <li><a href="#">Separated link</a></li>
                   <li><a href="#">One more separated link</a></li>
+                   -->
                 </ul>
               </li>
+              {% if user %}
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Items<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="/myitems">My Items</a></li>
+                  <li><a href="/mywishes">My Wishlist</a></li>
+                  
+                  <!--
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Nav header</li>
+                  <li><a href="#">Separated link</a></li>
+                  <li><a href="#">One more separated link</a></li>
+                   -->
+                </ul>
+              </li>
+              {% endif %}
             </ul>
             {% if user %}
             <ul class="nav navbar-nav pull-right">
               <li><a href="/sellitem">Sell-Item</a></li>
               <li><a href="/addwish">Add Wish</a></li>
+              
               <li class="active"><a href="/logout">(Logout)</a></li>
             </ul>
             {% else %}
@@ -146,16 +185,28 @@
 
     <div id="footer">
       <div class="container">
-        <p class="text-muted credit">A platform produced by <a href="http://martinbean.co.uk">Sajal Jain</a> and <a href="http://ryanfait.com/sticky-footer/">Gaurav Agarwal</a>.</p>
+        <p class="text-muted credit">A platform produced by <a href="https://www.facebook.com/jain.sajal">Sajal Jain</a> and 
+          <a href="https://www.facebook.com/AgarwalGaurav.iitkgp">Gaurav Agarwal</a>.</p>
       </div>
     </div>
    
 
-    
     <div class="static-content-about">
-    <b>About</b><br/>
-    martAgain is the social market place for KGPians where KGPians can buy and sell products and help recycle!<br/> Bon Voyage! 
+       <b>About</b><br/>
+          martAgain is the social market place for KGPians where KGPians can buy and sell products and help recycle!<br/> Bon Voyage! 
+          <br/><br/>
+        <b>Feedback/Queries</b><br/>
+    <form method="post" enctype="multipart/form-data" action="/feedback">
+        Contact email
+        <input type ="email" name="email">{{ email }}</input><br/>
+        Please tell us what you feel
+        <textarea style="width:180px;" name="feedtext" onchange="checkWordLen(this);">{{detail}}</textarea>
+        <br/>      
+        <button  type="submit" onclick="javascript:alert('Feedback Sent');">Submit </button>
+    </form>
+
     </div>
+    
     
   </body>
 </html>
