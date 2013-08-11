@@ -8,12 +8,14 @@ import json
 import urllib
 import cgi
 from string import letters
+from datetime import datetime, timedelta
 
 import webapp2
 import jinja2
 import facebook
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 from google.appengine.api import images
 from google.appengine.api.datastore import Query, Put
 
@@ -82,6 +84,61 @@ class BlogHandler(webapp2.RequestHandler):
             self.format = 'json'
         else:
             self.format = 'html'
+
+### caching functions
+def age_set(key, val):
+    save_time = datetime.utcnow()
+    memcache.set(key, (val, save_time))
+
+def age_get(key):
+    r = memcache.get(key)
+    if r:
+        val, save_time = r
+        age = (datetime.utcnow() - save_time).total_seconds()
+    else:
+        val, age = None, 0
+
+    return val, age
+
+def add_post(post):
+    post.put()
+    get_posts(update = True)
+    return str(post.key().id())
+
+def get_posts(update = False):
+    q = Post.all().order('-created').fetch(limit =10)
+    mc_key = 'POST'
+
+    posts, age = age_get(mc_key)
+    if update or posts is None:
+        posts = list(q)
+        age_set(mc_key, posts)
+
+    return posts, age
+
+def add_wish(wish):
+    wish.put()
+    get_wishes(update = True)
+    return str(wish.key().id())
+
+def get_wishes(update = False):
+    q = Wish.all().order('-created').fetch(limit =10)
+    mc_key = 'WISH'
+
+    wishes, age = age_get(mc_key)
+    if update or wishes is None:
+        wishes = list(q)
+        age_set(mc_key, wishes)
+
+    return wishes, age
+
+def age_str(age):
+    s = 'queried %s seconds ago'
+    age = int(age)
+    if age == 1:
+        s = s.replace('seconds', 'second')
+    return s % age
+
 
 
 class MainPage(BlogHandler):
@@ -196,48 +253,56 @@ class Post(db.Model):
                 'last_modified': self.last_modified.strftime(time_fmt)}
         return d
 
-
-
-
-
-
 class BlogFront(BlogHandler):
     def get(self):
-       	posts = greetings = Post.all().order('-created')
+       	posts, age = get_posts()
     	if self.format == 'html':
-    	     self.render('postfront.html', posts = posts)
+    	     self.render('postfront.html', posts = posts, age = age_str(age))
     	else:
     	     return self.render_json([p.as_dict() for p in posts])
 
 class WishFront(BlogHandler):
     def get(self):
+        wishes, age = get_wishes()
         wishes = greeting = Wish.all().order('-created')    
-        self.render('wishfront.html', wishes = wishes)
+        self.render('wishfront.html', wishes = wishes, age = age_str(age))
         
 
 class PostPage(BlogHandler):
     def get(self, post_id):
-        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-        post = db.get(key)
+        post_key = 'POST_' + post_id
+
+        post, age = age_get(post_key)
+        if not post:
+            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            post = db.get(key)
+            age_set(post_key, post)
+            age = 0 
 
         if not post:
             self.error(404)
             return
         if self.format == 'html':
-            self.render("postpermalink.html", post = post)
+            self.render("postpermalink.html", post = post, age = age_str(age))
         else:
             self.render_json(post.as_dict())
 
 class WishPage(BlogHandler):
     def get(self, wish_id):
-        key = db.Key.from_path('Wish', int(wish_id), parent=blog_key())
-        wish = db.get(key)
+        wish_key = 'WISH_' + wish_id
+
+        wish, age = age_get(wish_key)
+        if not wish:
+            key = db.Key.from_path('Wish', int(wish_id), parent=blog_key())
+            wish = db.get(key)
+            age_set(wish_key, wish)
+            age = 0 
 
         if not wish:
             self.error(404)
             return
         if self.format == 'html':
-            self.render("wishpermalink.html", wish = wish)
+            self.render("wishpermalink.html", wish = wish, age = age_str(age))
         else:
             self.render_json(wish.as_dict())
 
@@ -289,7 +354,7 @@ class SellItem(BlogHandler):
             if wish:
                 p.wish = wish
                
-            p.put()
+            add_post(p)
             self.redirect('/post/%s' % str(p.key().id()))
             #self.redirect('/')
         else:
@@ -315,7 +380,7 @@ class AddWish(BlogHandler):
         
         if producttype and detail and author:
             w = Wish(parent = blog_key(), producttype = producttype, detail = detail, author = author)
-            w.put()
+            add_wish(w)
             #print "a wish has been added \n \n"
             self.redirect('/wish/%s' % str(w.key().id()))
             #self.redirect('/wishlist')
