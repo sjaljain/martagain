@@ -25,16 +25,29 @@
     <script type="text/javascript">
         $(document).ready(
             function(){ 
-                        $('#interestSubmit').click(function() {
-                            var postkey = $('#postkey').val();
-                            
-
-                        $.ajax({
+                        $('.interestsubmit').click(function() {
+                            var postkey = $(this).val();
+                            $.ajax({
                                 type:'POST', 
                                 url:'/interested', 
                                 data:'postkey=' + postkey, 
                                 success: function(response) {
-                                    $('#interestSubmit').html(response);
+                                    $(postkey).html(response);
+                                }
+                            });   
+                        });
+                      }); 
+
+        $(document).ready(
+            function(){ 
+                        $('.itemsold').click(function() {
+                        var postkey = $(this).val();
+                        $.ajax({
+                                type:'POST', 
+                                url:'/sold', 
+                                data:'postkey=' + postkey, 
+                                success: function(response) {
+                                    window.location.replace('../myitems');
                                 }
                             });   
                         });
@@ -166,7 +179,11 @@
             </ul>
             {% else %}
             <ul class="nav navbar-nav pull-right">
-              <li><a href="http://www.facebook.com/dialog/oauth?client_id=1398507617030667&redirect_uri=http://localhost:8080/login">Login</a></li>
+              <li>
+               <a href="http://www.facebook.com/dialog/oauth?client_id=1398507617030667&redirect_uri=http://martagainiitkgp.appspot.com/login&scope=email">
+                Login
+              </a>
+              </li>
             </ul>
             {% endif %}
         
@@ -185,8 +202,8 @@
 
     <div id="footer">
       <div class="container">
-        <p class="text-muted credit">A platform produced by <a href="https://www.facebook.com/jain.sajal">Sajal Jain</a> and 
-          <a href="https://www.facebook.com/AgarwalGaurav.iitkgp">Gaurav Agarwal</a>.</p>
+        <p class="text-muted credit">A platform produced by <a href="https://www.facebook.com/jain.sajal">Sajal Jain</a>,  
+          <a href="https://www.facebook.com/AgarwalGaurav.iitkgp">Gaurav Agarwal </a>and <a href="https://www.facebook.com/subhajyoti.ghosh">Subhajyoti Ghosh</a>.</p>
       </div>
     </div>
    
@@ -204,6 +221,9 @@
         <br/>      
         <button  type="submit" onclick="javascript:alert('Feedback Sent');">Submit </button>
     </form>
+    <br/>
+     <div class="fb-like-box" data-href="https://www.facebook.com/martagainiitkgp" data-width="220" data-show-faces="false" data-header="false" data-stream="false" data-show-border="false"></div>
+        
 
     </div>
     

@@ -10,7 +10,12 @@
             <tr>
                 <th class="name" colspan="2">
     				<div class="post-name">
-                        <div class="page-header"><h4><a href="/post/{{ p.key().id() }}">{{p.name}}</a></h4><div>
+                        <div class="page-header"><h4><a href="/post/{{ p.key().id() }}">
+                            {% if p.sold == True %}
+                            <font color="red">{{p.name}}</font></a><small> (sold)</small></h4><div>
+                            {% else %}
+                            {{p.name}}</a></h4><div>
+                            {% endif %}
 
                         {% if p.wish %}
                             <div class="page-header"><h6>
@@ -30,7 +35,7 @@
             <tr>
                 <td rowspan="4" colspan="2" >
     				<div class="post-avatar">
-    		  		<img style="max-height:150px; width:auto;" src="{{ ['img?img_id=',p.key()]|join }}"></img>
+    		  		<img style="max-height:150px; width:auto;" src="{{ ['../img?img_id=',p.key()]|join }}"></img>
     				</div>
     				<div class="post-content" id="{{ ['detailbox',p.key().id()]|join }}" style="display:none;">{{p.detail}}</div>
                 </td>
@@ -60,24 +65,39 @@
             </tr>
             <tr>
                 <td id="maincontent" rowspan="1" colspan="2">
+                    {% if p.interestcounter > 0 %}
                     <a  style="vertical-align:bottom;" class="popup" 
                         href="/showinterested?postkey={{ p.key() }}">
-                        People Interested<br/>
-                    </a> 
+                        {{ p.interestcounter }} People Interested<br/>
+                    </a>
+                    {% endif %} 
                     <a style="vertical-align:bottom;" class="showcomment" href="{{ ['#fbcommentbox',p.key().id()]|join }}">
                         Comments<br/>
                     </a>            
                     <div id="{{ ['fbcommentbox',p.key().id()]|join }}" style="display:none;" class="fb-comments" 
-                            data-href="{{ ['http://localhost:8080/#',p.key().id()]|join }}" data-width="440">
+                            data-href="{{ ['http://martagainiitkgp.appspot.com/#',p.key().id()]|join }}" data-width="440">
                     </div> 
                 </td>
                		
                 <td>
     			<div class="post-content">
-                         <input type="hidden" value="{{ p.key() }}" id="postkey" />
-        		         <button class="btn btn-large btn-primary btn-block" type="submit" value="Interested" id="interestSubmit">
-                             I'm Interested   
-                        </button> 
+                         {% if p.sold == True %}
+                         {% else %}
+                            {% if user == p.author.fid %}
+                                 <input type="hidden" value="{{ p.key() }}" id="postkey" />
+                                 <button class="itemsold btn btn-large btn-primary btn-block" 
+                                    type="submit" value="{{ ['#soldbutton_',p.key()]|join }}" id="{{ ['soldbutton_',p.key()]|join }}">
+                                     Mark as Sold
+                                </button> 
+                            {% else %}
+                                {% if user %}
+                                     <input type="hidden" value="{{ p.key() }}" id="postkey" />
+                    		         <button class="interestsubmit btn btn-large btn-primary btn-block" type="submit" 
+                                      value="{{ ['#interestsubmit_',p.key()]|join }}" id="{{ ['interestsubmit_',p.key()]|join }}">  I'm Interested   
+                                    </button> 
+                                {% endif %}
+                             {% endif %}
+                         {% endif %}
                     
          		</div>			
     			</td>

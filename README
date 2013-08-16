@@ -4,3 +4,18 @@ Things needed to be done
 2. Interested people to be displayed on the main page
 3. Feedback form to be updated instead of mission
 4. mission page to be added
+
+
+<Update- the above have been implemented in the "first running version">
+
+Changes to be made when in production
+-------------------------------------
+
+1. Places for localhost:8080 url to be changed
+
+One place each in :
+
+a. martagain.py
+b. post.html
+c. wish.html
+d. base.html

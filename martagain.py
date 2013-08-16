@@ -7,6 +7,8 @@ import logging
 import json
 import urllib
 import cgi
+import time
+import tweepy
 from string import letters
 from datetime import datetime, timedelta
 
@@ -18,6 +20,8 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import images
 from google.appengine.api.datastore import Query, Put
+from google.appengine.api import mail
+
 
 FACEBOOK_APP_ID = "1398507617030667"
 FACEBOOK_APP_SECRET = "c5e18e6dfcf8920428c5bca868f2d8bb"
@@ -28,6 +32,31 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 
 secret = 'fart'
 dev_mode = 'on'
+
+def update_twitter(status):
+    consumer_key="dvqvInt4e3qpM9miNGQZRQ"
+    consumer_secret="5UoPJLF7KPxqtvtgFuSySKVd8jBxI0Jj0mZ5NpKY"
+
+    # The access tokens can be found on your applications's Details
+    # page located at https://dev.twitter.com/apps (located 
+    # under "Your access token")
+    access_token="1670725717-4zs2VrJcgFz8AeNrTfIz0hxuGwBd6N2GPHCvW4E"
+    access_token_secret="igeVH3rgJr9v2DyoMRFyyu5YuHY2k2sv4XClxUu3w"
+
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
+    api = tweepy.API(auth)
+
+    # If the authentication was successful, you should
+    # see the name of the account print out
+    print api.me().name
+
+    # If the application settings are set for "Read and Write" then
+    # this line should tweet out the message to your account's 
+    # timeline. The "Read and Write" setting is on https://dev.twitter.com/apps
+    api.update_status(status)
+
 
 def make_secure_val(val):
     return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
@@ -102,6 +131,8 @@ def age_get(key):
 
 def add_post(post):
     post.put()
+    time.sleep(1) #1 second delay between read and write operations
+    logging.info('post added/edited')
     get_posts(update = True)
     return str(post.key().id())
 
@@ -139,13 +170,6 @@ def age_str(age):
         s = s.replace('seconds', 'second')
     return s % age
 
-
-
-class MainPage(BlogHandler):
-  def get(self):
-      self.redirect('/')
-
-
 ##### user stuff
 def users_key(group = 'default'):
     return db.Key.from_path('users', group)
@@ -153,7 +177,9 @@ def users_key(group = 'default'):
 class User(db.Model):
     fid = db.StringProperty(required = True)
     name = db.StringProperty(required = True)
-    email = db.StringProperty(required = True)
+    email = db.StringProperty(required = False)
+    access_token = db.StringProperty(required = False)
+    admin = db.BooleanProperty(required = False, default = False)
     created = db.DateTimeProperty(auto_now_add = True)	
 
     @classmethod
@@ -169,11 +195,40 @@ class User(db.Model):
     def by_fid(cls, fid):
         u = User.all().filter('fid =', fid).get()
         return u
+"""
+class Thread(db.Model):
+    first_user = db.ReferenceProperty(User, required = True)
+    second_user = db.ReferenceProperty(User, required = True)
+    created = db.DateTimeProperty(auto_now_add)
+    updated = db.DateTimeProperty(auto_now_add)
+
+class Message(db.Model):
+    thread = db.ReferenceProperty(Thread, required = True)
+    sender = db.ReferenceProperty(User, required = True)
+    receiver = db.ReferenceProperty(User, required = True)
+    created = db.DateTimeProperty(auto_now_add)
+    text = db.TextProperty(required = False)
+
+class Messaging(BlogHandler):
+    def get(self):
+        if not self.user:
+            redirect('/')
+        #show messages for user code
+
+    def post(self):
+        if not self.user:
+            redirect('/')
+        ###enter another message code
+"""
+
+
+
 
 class Login(BlogHandler):
     def get(self):
-        redirecturl = "http://localhost:8080/login"
-        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=redirecturl)
+        redirectlocal = "http://localhost:8080/login"
+        redirectwebsite = "http://martagainiitkgp.appspot.com/login" 
+        args = dict(client_id=FACEBOOK_APP_ID, redirect_uri=redirectwebsite)
 
         """redirect_url points to */login* URL of our app"""
         args["client_secret"] = FACEBOOK_APP_SECRET  #facebook APP Secret
@@ -181,14 +236,33 @@ class Login(BlogHandler):
         response = cgi.parse_qs(urllib.urlopen("https://graph.facebook.com/oauth/access_token?" + urllib.urlencode(args)).read())
         access_token = response["access_token"][-1]
         profile = json.load(urllib.urlopen("https://graph.facebook.com/me?" + urllib.urlencode(dict(access_token=access_token))))
+
         self.set_secure_cookie('user_id', str(profile["id"]))
         u = User.by_fid(str(profile["id"]))
-        print u
+        
         if not u:
-                print "Registering another user..."
-                p = User(fid = str(profile["id"]), name = str(profile["name"]), email = str(profile["email"]))
+                ### registering new user
+                p = User(fid = str(profile["id"]), name = str(profile["name"]))
+                if "email" in profile.keys():
+                    logging.info('email provided %s', str(profile["email"]))
+                    p.email = str(profile["email"])
+                if access_token:
+                    p.access_token = access_token  
                 p.put()
-           
+                #send a welcome mail
+                user_address = p.email
+                if mail.is_email_valid(user_address):
+                    sender_address = "martAgain <sajaljain4@gmail.com>"
+                    subject = "Welcome!"
+                    html = """
+                            We would like to keep this short. Welcome to martAgain.
+                            Please feel free to add your items/wishes and be a part of this growing social market place.
+
+                            <a href="http://facebook.com/martagainiitkgp">Facebook Page</a>    
+                            """ 
+                    mail.send_mail(sender_address, user_address, subject, html)
+        ### some facebook posting stuff test
+              
         self.redirect("/")
 
 class Logout(BlogHandler):
@@ -197,6 +271,9 @@ class Logout(BlogHandler):
         self.redirect('/')
 
 ##### blog stuff
+class MainPage(BlogHandler):
+  def get(self):
+      self.redirect('/')
 
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
@@ -232,13 +309,15 @@ class Post(db.Model):
     author = db.ReferenceProperty(User, required = True)
     wish = db.ReferenceProperty(Wish, required = False)
     avatar = db.BlobProperty(required = False)
+    sold = db.BooleanProperty(required = False, default = False)
     created = db.DateTimeProperty(auto_now_add = True)
+    interestcounter = db.IntegerProperty(default = 0)
     last_modified = db.DateTimeProperty(auto_now = True)
 
-   
-    def render(self):
+    
+    def render(self, user):
         self._render_text = self.detail.replace('\n', '<br>')
-        return render_str("post.html", p = self)
+        return render_str("post.html", p = self, user = user)
 
     def as_dict(self):
         time_fmt = '%c'
@@ -292,7 +371,7 @@ class Bicycles(BlogHandler):
         posts, age = get_posts()
         bicycles = []
         for p in posts:
-            if p.producttype == 'Book':
+            if p.producttype == 'Bicycle':
                 bicycles.append(p)
 
         if self.format == 'html':
@@ -302,6 +381,8 @@ class Bicycles(BlogHandler):
 
 class MyItems(BlogHandler):
     def get(self):
+        if not self.user:
+            self.redirect('/')
         posts, age = get_posts()
         myitems = []
         for p in posts:
@@ -315,6 +396,8 @@ class MyItems(BlogHandler):
 
 class MyWishes(BlogHandler):
     def get(self):
+        if not self.user:
+            redirect('/')
         wishes, age = get_wishes()
         mywishes = []
         for w in wishes:
@@ -326,14 +409,12 @@ class MyWishes(BlogHandler):
         else:
              return self.render_json([w.as_dict() for w in wishes])
 
-
 class WishFront(BlogHandler):
     def get(self):
         wishes, age = get_wishes()
         wishes = greeting = Wish.all().order('-created')    
         self.render('wishfront.html', wishes = wishes, age = age_str(age))
         
-
 class PostPage(BlogHandler):
     def get(self, post_id):
         post_key = 'POST_' + post_id
@@ -371,8 +452,6 @@ class WishPage(BlogHandler):
             self.render("wishpermalink.html", wish = wish, age = age_str(age))
         else:
             self.render_json(wish.as_dict())
-
-
 
 class SellItem(BlogHandler):
     wish = None
@@ -420,8 +499,12 @@ class SellItem(BlogHandler):
             if wish:
                 p.wish = wish
                
-            add_post(p)
-            self.redirect('/post/%s' % str(p.key().id()))
+            postid = add_post(p)
+
+            postlink = "http://martagainiitkgp.appspot.com/post/" + str(p.key().id())
+            status = "Item " + str(p.name) + " for sale - " + postlink
+            update_twitter(status)
+            self.redirect('/post/%s' % postid)
             #self.redirect('/')
         else:
             error = "fill in the details, please!"
@@ -452,7 +535,6 @@ class AddWish(BlogHandler):
             error = "fill in the details, please!"
             self.render("addwish.html", productseq = productseq, producttype = producttype, detail = detail, author = author, error=error) #add author here as well
 
-
 class Interest(db.Model):
     user = db.ReferenceProperty(User)
     post = db.ReferenceProperty(Post)
@@ -468,22 +550,53 @@ class Interested(BlogHandler):
         self.redirect('/')
 
     def post(self):
-        postkey = self.request.get("postkey")
+        if not self.user or self.request.get("postkey") is None:
+            self.redirect('/')
+        postkey = self.request.get("postkey").split('_')[1]
         post = db.get(postkey)
         u = User.by_fid(self.user)
         i = Interest.by_data(u, post)
         if not i:
             i = Interest(user = u, post = post)
             i.put()
+            post.interestcounter += 1
+            if post.interestcounter == 1 or (post.interestcounter+1)%5 == 0:
+                ##send mail to user
+                user_address = i.post.email
+                sender_address = "martAgain <sajaljain4@gmail.com>"
+                subject =  "Your product has viewers!"
+                html = """  %s or more people have shown interest in your product %s.
+                            Please visit <a href='http://martagainiitkgp.appspot.com/myitems'>My Items</a> after logging in to check the status.
+
+                            Thanks for being part of this awesome experience.
+
+                            <a href="http://facebook.com/martagainiitkgp">Facebook Page</a>    
+                            """ % ((post.interestcounter),  i.post.name) 
+                mail.send_mail(sender_address, user_address, subject, html)
+            add_post(post)
             self.write('<p>Interest sent</p>')
         else:
             self.write('<p>Had already sent</p>')
+
+class ItemSold(BlogHandler):
+    def get(self):
+        self.redirect('/')
+
+    def post(self):
+        if not self.user or self.request.get("postkey") is None:
+            self.redirect('/')
+        postkey = self.request.get("postkey").split('_')[1]
+        logging.info(postkey)
+        post = db.get(postkey)
+        post.sold = True
+        add_post(post)
+        self.write('hello')
+        
 
 class Feed(db.Model):
     contact = db.StringProperty(required = False)
     text = db.TextProperty(required = False)
     created = db.DateTimeProperty(auto_now_add = True)
-
 
 class Feedback(BlogHandler):
     def get(self):
@@ -494,7 +607,6 @@ class Feedback(BlogHandler):
         text = self.request.get("feedtext")
         f = Feed(contact = contact, text = text)
         f.put()
-        print "received feedback"
         self.write('<p>Feedback Sent</p>')
         self.redirect('/')
 
@@ -526,6 +638,7 @@ app = webapp2.WSGIApplication([#('/', MainPage),
                                ('/wish/([0-9]+)(?:.json)?', WishPage),
                                ('/wishlist',WishFront),
                                ('/showinterested', ShowInterested),
+                               ('/sold', ItemSold),
                                #('/user',UserPage),
                                ('/sellitem', SellItem),
                                ('/addwish', AddWish),
